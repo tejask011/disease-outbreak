@@ -22,16 +22,41 @@ const calculateRiskHandler = async (req, res) => {
   try {
     const { city } = req.query;
 
-    if (!city) {
-      return res.status(400).json({
-        success: false,
-        error: "City is required",
-      });
+    // 🔥 30 DAY WINDOW
+    const today = new Date();
+    const last30Days = new Date();
+    last30Days.setDate(today.getDate() - 30);
+
+    let records;
+
+    // 🔍 BASE QUERY (last 30 days)
+    let query = {
+      date: {
+        $gte: last30Days,
+        $lte: today, // avoid future dates
+      },
+    };
+
+    // add city filter if present
+    if (city && city.trim() !== "") {
+      query.city = { $regex: city, $options: "i" };
     }
 
-    const records = await Case.find({
-      city: { $regex: city, $options: "i" },
-    }).sort({ date: 1 });
+    // 🔍 Try recent data first
+    records = await Case.find(query).sort({ date: 1 });
+
+    // ⚠️ FALLBACK → if no recent data
+    if (!records.length) {
+      console.log("⚠️ No recent data → using full dataset");
+
+      let fallbackQuery = {};
+
+      if (city && city.trim() !== "") {
+        fallbackQuery.city = { $regex: city, $options: "i" };
+      }
+
+      records = await Case.find(fallbackQuery).sort({ date: 1 });
+    }
 
     if (!records.length) {
       return res.json({
@@ -40,7 +65,9 @@ const calculateRiskHandler = async (req, res) => {
       });
     }
 
-    const weather = await getWeather(city);
+    // Weather only if city is provided
+    const weather = city ? await getWeather(city) : null;
+
     const grouped = groupByArea(records);
 
     let results = [];
