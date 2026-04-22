@@ -34,3 +34,29 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+node_modules/
+.env
+Backend/uploads/
+*.log
+
+# Python
+ml/venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Uploads
+Backend/uploads/
+
+# Env files
+.env
+
+ml/venv/
+ml/__pycache__/
+*.pyc
+Backend/uploads/
+node_modules/
+.env
