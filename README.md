@@ -155,15 +155,15 @@ python server.py
 
 ## 👥 The Team and contribution 
 
-- **Yashashri Rajput--  - Environment Data Integration
-                        - API Development & Integration
-                        - UI for Data Visualization
-  
 - **Tejas Kulkarni-- -CSV Upload & Validation
                      -Data Preprocessing & Cleaning
                      -Input Handling & Error Checking
                      -UI for Data Handling
                     - Deployment and database handling
+
+- **Yashashri Rajput--  - Environment Data Integration
+                        - API Development & Integration
+                        - UI for Data Visualization
   
 - **Samruddhi Patil-- - Risk Calculation Logic
                       - Outbreak Prediction & Scoring
