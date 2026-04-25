@@ -168,4 +168,38 @@ python server.py
 - [ ] **Multi-Agent AI**: Specialized agents for pandemic simulation.
 
 ---
+## 👥 Contributors
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/member1">
+        <img src="https://github.com/member1.png" width="100px;" /><br />
+        <sub><b>Member 1</b></sub>
+      </a><br />
+      📂 CSV Upload & Validation <br />
+      🎨 UI for Data Handling
+    </td>
+
+    <td align="center">
+      <a href="https://github.com/member2">
+        <img src="https://github.com/member2.png" width="100px;" /><br />
+        <sub><b>Member 2</b></sub>
+      </a><br />
+      🌦️ Environment Data Integration <br />
+      🔗 API Development & Integration <br />
+      🎨 UI for Data Visualization
+    </td>
+
+    <td align="center">
+      <a href="https://github.com/member3">
+        <img src="https://github.com/member3.png" width="100px;" /><br />
+        <sub><b>Member 3</b></sub>
+      </a><br />
+      📊 Risk Calculation Logic <br />
+      🧠 Outbreak Prediction & Scoring <br />
+      🎨 UI for Analytics & Insights
+    </td>
+  </tr>
+</table>
 *Developed as part of the AI-Based Disease Outbreak Prediction System Project.*
