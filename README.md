@@ -127,7 +127,7 @@ Instead of waiting for large spikes, the system analyzes "Silent Signals":
 graph TD
     A[Clinical Data + Reports] --> B[Processing & Cleaning]
     C[Weather & Env Data] --> B
-    B --> D[Trend Analysis 7-14 Days]
+    B --> D[Trend Analysis last 30 Days]
     D --> E[Weak Signal Detection]
     E --> F[ML Risk Engine]
     F --> G[Insight Generation]
