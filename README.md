@@ -153,11 +153,21 @@ python server.py
 
 ---
 
-## 👥 The Team
+## 👥 The Team and contribution 
 
-- **Yashashri Rajput**
-- **Tejas Kulkarni**
-- **Samruddhi Patil**
+- **Yashashri Rajput--  - Environment Data Integration
+                        - API Development & Integration
+                        - UI for Data Visualization
+  
+- **Tejas Kulkarni-- -CSV Upload & Validation
+                     -Data Preprocessing & Cleaning
+                     -Input Handling & Error Checking
+                     -UI for Data Handling
+                    - Deployment and database handling
+  
+- **Samruddhi Patil-- - Risk Calculation Logic
+                      - Outbreak Prediction & Scoring
+                      - UI for Analytics & Insights
 
 ---
 
