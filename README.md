@@ -17,32 +17,13 @@ Unlike traditional systems, it focuses on detecting **early weak signals** — i
 ---
 
 ### 📈 Analytics & Trends
-| Analytics | Trends |
-|:----------:|:--------:|
-| <img src="screenshots/analytics.png" width="300" alt="Analytics"/> |
+| Analytics | 
+|:----------:|
+| <img src="screenshots/analytics.png" width="300" alt="Analytics"/>
 
 ---
 
-### 📍 Risk Levels
-| 🔥 High Risk | ⚠️ Medium Risk | ✅ Low Risk |
-|:----------:|:-------------:|:----------:|
-| <img src="screenshots/high-risk.png" width="220" alt="High Risk"/> | <img src="screenshots/medium-risk.png" width="220" alt="Medium Risk"/> | <img src="screenshots/low-risk.png" width="220" alt="Low Risk"/> |
 
----
-
-### 📌 Area Details & Insights
-| Detail View 1 | Detail View 2 | Detail View 3 |
-|:---------------:|:----------------:|:--------------:|
-| <img src="screenshots/insigts1.png" width="220" alt="Insights 1"/> | <img src="screenshots/insights2.png" width="220" alt="Insights 2"/> | <img src="screenshots/dashboard.png" width="220" alt="Insights 3"/> |
-
----
-
-### 📤 Data Upload
-| 📁 Upload Dataset |
-|:---------------:|
-| <img src="screenshots/upload.png" width="350" alt="Upload"/> |
-
----
 
 ## ❗ Problem Statement
 
