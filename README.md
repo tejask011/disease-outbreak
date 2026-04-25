@@ -10,10 +10,9 @@ Unlike traditional systems, it focuses on detecting **early weak signals** — i
 ## 📱 Mobile Implementation (Screenshots)
 
 ### 📊 Dashboard & Map
-| Dashboard | Risk Map || Analytics | 
-|:----------:|:----------:||:----------:|
-| <img src="screenshots/dashboard.png" width="300" alt="Dashboard"/> | <img src="screenshots/high-risk.png" width="300" alt="Risk Map"/> |img src="screenshots/analytics.png" width="300" alt="Analytics"/>
-
+| Dashboard | Risk Map |
+|:----------:|:----------:|
+| <img src="screenshots/dashboard.png" width="300" alt="Dashboard"/> | <img src="screenshots/high-risk.png" width="300" alt="Risk Map"/> 
 ---
 
 ### 📈 Analytics & Trends
