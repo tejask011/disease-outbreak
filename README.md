@@ -1,4 +1,4 @@
-# 🌍 AI-Based Disease Outbreak Prediction System (AegisEpi)
+# 🌍 AegisEpi
 
 A high-fidelity, production-grade disease monitoring and risk prediction platform.  
 This system leverages Machine Learning to analyze historical outbreak data, weather patterns, and real-time reports to provide **actionable insights for public health officials and the general public**.
