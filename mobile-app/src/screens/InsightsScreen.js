@@ -10,6 +10,11 @@ import SectionTitle from '../components/SectionTitle';
 const InsightsScreen = ({ navigation }) => {
   const { outbreakData } = useContext(OutbreakContext);
 
+  // Sort by risk score descending (highest risk first)
+  const sortedData = [...outbreakData].sort(
+    (a, b) => (b.prediction?.riskScore || 0) - (a.prediction?.riskScore || 0)
+  );
+
   const handleCardPress = (item) => {
     navigation.navigate('AreaDetail', { area: item });
   };
@@ -21,10 +26,10 @@ const InsightsScreen = ({ navigation }) => {
         <Header />
         
         <FlatList
-          data={outbreakData}
+          data={sortedData}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={
-            <SectionTitle icon="albums-outline" title="All Area Insights" count={outbreakData.length} color={COLORS.primary} />
+            <SectionTitle icon="albums-outline" title="All Area Insights" count={sortedData.length} color={COLORS.primary} />
           }
           renderItem={({ item }) => (
             <RiskCard item={item} onPress={handleCardPress} />

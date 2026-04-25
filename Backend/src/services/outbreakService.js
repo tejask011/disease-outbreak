@@ -74,8 +74,8 @@ const getWeatherImpact = (weather, disease) => {
 
 // Risk level recalibrated for higher sensitivity and clearer separation
 const getRiskMeta = (score) => {
-  if (score >= 0.70) return { level: "HIGH", color: "#FF4D4D" };
-  if (score >= 0.45) return { level: "MEDIUM", color: "#FFA500" };
+  if (score >= 0.65) return { level: "HIGH", color: "#FF4D4D" };
+  if (score >= 0.35) return { level: "MEDIUM", color: "#FFA500" };
   return { level: "LOW", color: "#00C853" };
 };
 
@@ -118,10 +118,10 @@ const predictOutbreak = async ({ data, weather }) => {
     const totalCases = data.reduce((sum, r) => sum + (r.cases || 0), 0);
     const caseFactor = Math.min(totalCases / 100, 1); // 100+ cases is serious volume
 
-    // 🔥 HARDENED VOLUME MULTIPLIER (More aggressive towards low data)
+    // 🔥 REBALANCED VOLUME MULTIPLIER (Slightly more forgiving for smaller outbreaks)
     let volumeMultiplier = 1.0;
-    if (totalCases < 30) volumeMultiplier = 0.3; // Very harsh for tiny samples
-    else if (totalCases < 75) volumeMultiplier = 0.7;
+    if (totalCases < 20) volumeMultiplier = 0.45; // Increased from 0.3
+    else if (totalCases < 60) volumeMultiplier = 0.8; // Increased from 0.7
 
 
 
@@ -240,7 +240,7 @@ const predictOutbreak = async ({ data, weather }) => {
         name: d.disease,
         probability: formatPercent(d.probability),
         caseCount: caseTotals[d.disease] || 0,
-        level: d.riskScore > 75 ? "HIGH" : d.riskScore > 45 ? "MEDIUM" : "LOW",
+        level: d.riskScore >= 65 ? "HIGH" : d.riskScore >= 35 ? "MEDIUM" : "LOW",
       })),
       summary: `${top.disease} indicates ${meta.level.toLowerCase()} risk level in ${area}. ${
         top.riskScore > 70 ? "Immediate attention advised." : "Monitor local trends."

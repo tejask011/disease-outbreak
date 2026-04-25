@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
   StatusBar,
   RefreshControl,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,12 +28,38 @@ const { height } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
+  const [riskFilter, setRiskFilter] = useState(null); // null = all, 'HIGH', 'MEDIUM', 'LOW'
+  const [searchQuery, setSearchQuery] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
   const { outbreakData, loading, error, getHighRiskAreas, getStats, refreshData } = useContext(OutbreakContext);
 
-  const highRiskAreas = outbreakData.length ? getHighRiskAreas() : [];
   const stats = outbreakData.length ? getStats() : { total: 0, high: 0, medium: 0, low: 0 };
+
+  // Filter data based on selected risk level and search query
+  const filteredData = useMemo(() => {
+    let data = outbreakData;
+    
+    // Apply risk level filter
+    if (riskFilter) {
+      data = data.filter(d => d.prediction.level === riskFilter);
+    }
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      data = data.filter(d => 
+        (d.area || '').toLowerCase().includes(q) ||
+        (d.city || '').toLowerCase().includes(q) ||
+        (d.prediction?.disease || '').toLowerCase().includes(q)
+      );
+    }
+    
+    return data;
+  }, [outbreakData, riskFilter, searchQuery]);
+
+  // List items for the FlatList (filtered by risk + search)
+  const listData = filteredData;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -52,27 +79,98 @@ const DashboardScreen = ({ navigation }) => {
     navigation.navigate('AreaDetail', { area: item });
   };
 
-  const ListHeader = () => (
+  const handleFilterPress = (level) => {
+    // Toggle: if already active, clear filter
+    setRiskFilter(prev => prev === level ? null : level);
+  };
+
+  // Get the section title based on active filter
+  const getSectionTitle = () => {
+    if (searchQuery.trim()) return `Search Results`;
+    switch (riskFilter) {
+      case 'HIGH': return 'High Risk Areas';
+      case 'MEDIUM': return 'Medium Risk Areas';
+      case 'LOW': return 'Low Risk Areas';
+      default: return 'All Areas';
+    }
+  };
+
+  const getSectionColor = () => {
+    switch (riskFilter) {
+      case 'HIGH': return COLORS.high;
+      case 'MEDIUM': return COLORS.medium;
+      case 'LOW': return COLORS.low;
+      default: return COLORS.primary;
+    }
+  };
+
+  const listHeaderElement = (
     <Animated.View style={{ opacity: fadeAnim }}>
+
+      {/* ── Search Bar ─── */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={18} color={COLORS.textMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search area, city, or disease..."
+            placeholderTextColor={COLORS.textMuted}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={COLORS.textMuted} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
       
       {/* ── Summary Stats Row (Top) ─── */}
       <View style={[styles.statsContainer, { paddingTop: 10 }]}>
         <SectionTitle icon="stats-chart" title="Overview" color={COLORS.primary} />
         <View style={styles.statsRow}>
-          <StatsCard icon="globe-outline" label="Total" value={stats.total} color={COLORS.primary} delay={0} />
-          <StatsCard icon="alert-circle" label="High" value={stats.high} color={COLORS.high} delay={100} />
-          <StatsCard icon="warning-outline" label="Medium" value={stats.medium} color={COLORS.medium} delay={200} />
-          <StatsCard icon="shield-checkmark" label="Low" value={stats.low} color={COLORS.low} delay={300} />
+          <StatsCard
+            icon="globe-outline" label="Total" value={stats.total}
+            color={COLORS.primary} delay={0}
+            onPress={() => handleFilterPress(null)}
+            active={riskFilter === null}
+          />
+          <StatsCard
+            icon="alert-circle" label="High" value={stats.high}
+            color={COLORS.high} delay={100}
+            onPress={() => handleFilterPress('HIGH')}
+            active={riskFilter === 'HIGH'}
+          />
+          <StatsCard
+            icon="warning-outline" label="Medium" value={stats.medium}
+            color={COLORS.medium} delay={200}
+            onPress={() => handleFilterPress('MEDIUM')}
+            active={riskFilter === 'MEDIUM'}
+          />
+          <StatsCard
+            icon="shield-checkmark" label="Low" value={stats.low}
+            color={COLORS.low} delay={300}
+            onPress={() => handleFilterPress('LOW')}
+            active={riskFilter === 'LOW'}
+          />
         </View>
       </View>
 
       {/* ── MAP AS MAIN SECTION ─── */}
       <View style={styles.mapWrapper}>
-        {outbreakData.length > 0 && <LiveMap data={outbreakData} onMarkerPress={handleCardPress} />}
+        {filteredData.length > 0 && <LiveMap data={filteredData} onMarkerPress={handleCardPress} />}
+        {filteredData.length === 0 && outbreakData.length > 0 && (
+          <View style={styles.noResults}>
+            <Ionicons name="location-outline" size={40} color={COLORS.textMuted} />
+            <Text style={styles.noResultsText}>No areas match the filter</Text>
+          </View>
+        )}
       </View>
 
-      {/* ── High Risk List Header ─── */}
-      <SectionTitle icon="warning" title="High Risk Areas" count={highRiskAreas.length} color={COLORS.high} />
+      {/* ── Filtered List Header ─── */}
+      <SectionTitle icon="list" title={getSectionTitle()} count={filteredData.length} color={getSectionColor()} />
     </Animated.View>
   );
 
@@ -105,12 +203,12 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         ) : (
           <FlatList
-            data={highRiskAreas}
+            data={listData}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <RiskCard item={item} onPress={handleCardPress} />
             )}
-            ListHeaderComponent={ListHeader}
+            ListHeaderComponent={listHeaderElement}
             ListFooterComponent={() => <View style={{ height: 100 }} />}
             showsVerticalScrollIndicator={false}
             refreshControl={
@@ -138,16 +236,51 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  searchContainer: {
+    paddingHorizontal: SIZES.padding,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderRadius: SIZES.radiusFull,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
+    color: COLORS.textPrimary,
+    fontSize: SIZES.sm,
+    ...FONTS.medium,
+    padding: 0,
+  },
   mapWrapper: {
     position: 'relative',
-    height: height * 0.45, // Map dominates almost half the screen
+    height: height * 0.45,
     marginBottom: SIZES.padding,
+  },
+  noResults: {
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.bgMedium,
+    gap: 10,
+  },
+  noResultsText: {
+    color: COLORS.textMuted,
+    fontSize: SIZES.sm,
+    ...FONTS.medium,
   },
   floatingAlerts: {
     position: 'absolute',
     top: 10,
     width: '100%',
-    zIndex: 10, // Float above the map
+    zIndex: 10,
   },
   alertScroll: {
     paddingHorizontal: SIZES.padding,

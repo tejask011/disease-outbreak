@@ -5,6 +5,7 @@ import HighRiskAlerts from "../components/HighRiskAlerts";
 import { MapPin, Shield, TrendingUp, AlertTriangle } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
+// Fly to a specific location when city is searched
 function FlyTo({ coords, zoom }) {
   const map = useMap();
 
@@ -13,6 +14,28 @@ function FlyTo({ coords, zoom }) {
       map.flyTo(coords, zoom, { duration: 1.8 });
     }
   }, [coords, zoom, map]);
+
+  return null;
+}
+
+// Auto-fit map bounds to show all markers
+function AutoFitBounds({ data }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const validItems = data.filter((d) => d.lat && d.lng);
+    if (validItems.length === 0) return;
+
+    const lats = validItems.map((d) => d.lat);
+    const lngs = validItems.map((d) => d.lng);
+
+    const bounds = [
+      [Math.min(...lats) - 0.5, Math.min(...lngs) - 0.5],
+      [Math.max(...lats) + 0.5, Math.max(...lngs) + 0.5],
+    ];
+
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 1.5 });
+  }, [data, map]);
 
   return null;
 }
@@ -32,7 +55,11 @@ export default function Dashboard() {
   const [flyZoom, setFlyZoom] = useState(5);
 
   useEffect(() => {
-    if (!currentCity) return;
+    if (!currentCity) {
+      setFlyCoords(null);
+      setFlyZoom(5);
+      return;
+    }
 
     const geocode = async () => {
       try {
@@ -91,19 +118,19 @@ export default function Dashboard() {
               style={{ width: "100%", height: "100%", borderRadius: "16px" }}
             >
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-              <FlyTo coords={flyCoords} zoom={flyZoom} />
+              
+              {/* Fly to searched city if available, else auto-fit markers */}
+              {flyCoords ? (
+                <FlyTo coords={flyCoords} zoom={flyZoom} />
+              ) : (
+                <AutoFitBounds data={data} />
+              )}
 
               {data.map((item, i) => {
-                const spread = 0.04; // tighter cluster
+                if (!item.lat || !item.lng) return null;
 
-                // ✅ FIXED COORDINATES (random cluster instead of line)
-                const lat = flyCoords
-                  ? flyCoords[0] + (Math.random() - 0.5) * spread
-                  : 20.5937 + (Math.random() - 0.5) * 5;
-
-                const lng = flyCoords
-                  ? flyCoords[1] + (Math.random() - 0.5) * spread
-                  : 78.9629 + (Math.random() - 0.5) * 5;
+                const lat = item.lat;
+                const lng = item.lng;
 
                 const color = riskColor(item.prediction?.level);
                 const isHigh = item.prediction?.level === "HIGH";
@@ -112,11 +139,14 @@ export default function Dashboard() {
                   <CircleMarker
                     key={i}
                     center={[lat, lng]}
-                    radius={isHigh ? 14 : item.prediction?.level === "MEDIUM" ? 10 : 8}
+                    radius={
+                      isHigh ? 16 :
+                      item.prediction?.level === "MEDIUM" ? 12 : 9
+                    }
                     pathOptions={{
                       color,
                       fillColor: color,
-                      fillOpacity: 0.4,
+                      fillOpacity: 0.5,
                       weight: 2
                     }}
                   >

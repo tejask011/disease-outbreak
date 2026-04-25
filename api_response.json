@@ -1,0 +1,455 @@
+﻿{
+    "success":  true,
+    "data":  [
+                 {
+                     "area":  "sitabuldi",
+                     "city":  "nagpur",
+                     "weather":  {
+                                     "city":  "nagpur",
+                                     "temp":  41.01,
+                                     "humidity":  11,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "dengue",
+                                        "confidence":  "80%",
+                                        "riskScore":  83,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "dengue",
+                                             "probability":  "95%",
+                                             "caseCount":  185,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "dengue indicates high risk level in sitabuldi. Immediate attention advised.",
+                     "lat":  21.1414478,
+                     "lng":  79.0824843
+                 },
+                 {
+                     "area":  "dharampeth",
+                     "city":  "nagpur",
+                     "weather":  {
+                                     "city":  "nagpur",
+                                     "temp":  41.01,
+                                     "humidity":  11,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "malaria",
+                                        "confidence":  "80%",
+                                        "riskScore":  75,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "malaria",
+                                             "probability":  "95%",
+                                             "caseCount":  135,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "malaria indicates high risk level in dharampeth. Immediate attention advised.",
+                     "lat":  21.1409684,
+                     "lng":  79.0624344
+                 },
+                 {
+                     "area":  "sadar",
+                     "city":  "nagpur",
+                     "weather":  {
+                                     "city":  "nagpur",
+                                     "temp":  41.01,
+                                     "humidity":  11,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "flu",
+                                        "confidence":  "80%",
+                                        "riskScore":  54,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "flu",
+                                             "probability":  "95%",
+                                             "caseCount":  37,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "flu indicates medium risk level in sadar. Monitor local trends.",
+                     "lat":  21.1817155,
+                     "lng":  79.0789652
+                 },
+                 {
+                     "area":  "mahal",
+                     "city":  "nagpur",
+                     "weather":  {
+                                     "city":  "nagpur",
+                                     "temp":  41.01,
+                                     "humidity":  11,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "cholera",
+                                        "confidence":  "80%",
+                                        "riskScore":  50,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "cholera",
+                                             "probability":  "95%",
+                                             "caseCount":  21,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "cholera indicates medium risk level in mahal. Monitor local trends.",
+                     "lat":  21.1429969,
+                     "lng":  79.1101819
+                 },
+                 {
+                     "area":  "manishnagar",
+                     "city":  "nagpur",
+                     "weather":  {
+                                     "city":  "nagpur",
+                                     "temp":  41.01,
+                                     "humidity":  11,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "typhoid",
+                                        "confidence":  "80%",
+                                        "riskScore":  61,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "typhoid",
+                                             "probability":  "95%",
+                                             "caseCount":  32,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "typhoid indicates medium risk level in manishnagar. Monitor local trends.",
+                     "lat":  21.1498134,
+                     "lng":  79.0820556
+                 },
+                 {
+                     "area":  "cidco",
+                     "city":  "aurangabad",
+                     "weather":  {
+                                     "city":  "aurangabad",
+                                     "temp":  41.05,
+                                     "humidity":  16,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "dengue",
+                                        "confidence":  "80%",
+                                        "riskScore":  85,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "dengue",
+                                             "probability":  "95%",
+                                             "caseCount":  170,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "dengue indicates high risk level in cidco. Immediate attention advised.",
+                     "lat":  19.877755,
+                     "lng":  75.3630638
+                 },
+                 {
+                     "area":  "osmanpura",
+                     "city":  "aurangabad",
+                     "weather":  {
+                                     "city":  "aurangabad",
+                                     "temp":  41.05,
+                                     "humidity":  16,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "malaria",
+                                        "confidence":  "80%",
+                                        "riskScore":  98,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Immediate (1-3 days)"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "malaria",
+                                             "probability":  "95%",
+                                             "caseCount":  135,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "malaria indicates high risk level in osmanpura. Immediate attention advised.",
+                     "lat":  19.8679269,
+                     "lng":  75.3273955
+                 },
+                 {
+                     "area":  "garkheda",
+                     "city":  "aurangabad",
+                     "weather":  {
+                                     "city":  "aurangabad",
+                                     "temp":  41.05,
+                                     "humidity":  16,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "flu",
+                                        "confidence":  "80%",
+                                        "riskScore":  54,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "flu",
+                                             "probability":  "95%",
+                                             "caseCount":  34,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "flu indicates medium risk level in garkheda. Monitor local trends.",
+                     "lat":  19.877263,
+                     "lng":  75.3390241
+                 },
+                 {
+                     "area":  "sataraparisar",
+                     "city":  "aurangabad",
+                     "weather":  {
+                                     "city":  "aurangabad",
+                                     "temp":  41.05,
+                                     "humidity":  16,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "cholera",
+                                        "confidence":  "80%",
+                                        "riskScore":  32,
+                                        "level":  "LOW",
+                                        "color":  "#00C853",
+                                        "expectedOutbreak":  "Stable - Monitor only"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "cholera",
+                                             "probability":  "95%",
+                                             "caseCount":  18,
+                                             "level":  "LOW"
+                                         }
+                                     ],
+                     "summary":  "cholera indicates low risk level in sataraparisar. Monitor local trends.",
+                     "lat":  19.877263,
+                     "lng":  75.3390241
+                 },
+                 {
+                     "area":  "beedbypass",
+                     "city":  "aurangabad",
+                     "weather":  {
+                                     "city":  "aurangabad",
+                                     "temp":  41.05,
+                                     "humidity":  16,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "typhoid",
+                                        "confidence":  "80%",
+                                        "riskScore":  53,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "typhoid",
+                                             "probability":  "95%",
+                                             "caseCount":  27,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "typhoid indicates medium risk level in beedbypass. Monitor local trends.",
+                     "lat":  19.877263,
+                     "lng":  75.3390241
+                 },
+                 {
+                     "area":  "rajarampuri",
+                     "city":  "kolhapur",
+                     "weather":  {
+                                     "city":  "kolhapur",
+                                     "temp":  37.09,
+                                     "humidity":  22,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "dengue",
+                                        "confidence":  "80%",
+                                        "riskScore":  86,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "dengue",
+                                             "probability":  "95%",
+                                             "caseCount":  155,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "dengue indicates high risk level in rajarampuri. Immediate attention advised.",
+                     "lat":  16.6945771,
+                     "lng":  74.2453534
+                 },
+                 {
+                     "area":  "shahupuri",
+                     "city":  "kolhapur",
+                     "weather":  {
+                                     "city":  "kolhapur",
+                                     "temp":  37.09,
+                                     "humidity":  22,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "malaria",
+                                        "confidence":  "80%",
+                                        "riskScore":  86,
+                                        "level":  "HIGH",
+                                        "color":  "#FF4D4D",
+                                        "expectedOutbreak":  "Within a week"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "malaria",
+                                             "probability":  "95%",
+                                             "caseCount":  125,
+                                             "level":  "HIGH"
+                                         }
+                                     ],
+                     "summary":  "malaria indicates high risk level in shahupuri. Immediate attention advised.",
+                     "lat":  16.7002439,
+                     "lng":  74.2365115
+                 },
+                 {
+                     "area":  "tarabaipark",
+                     "city":  "kolhapur",
+                     "weather":  {
+                                     "city":  "kolhapur",
+                                     "temp":  37.09,
+                                     "humidity":  22,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "flu",
+                                        "confidence":  "80%",
+                                        "riskScore":  55,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "flu",
+                                             "probability":  "95%",
+                                             "caseCount":  31,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "flu indicates medium risk level in tarabaipark. Monitor local trends.",
+                     "lat":  16.7028412,
+                     "lng":  74.2405329
+                 },
+                 {
+                     "area":  "ujalaiwadi",
+                     "city":  "kolhapur",
+                     "weather":  {
+                                     "city":  "kolhapur",
+                                     "temp":  37.09,
+                                     "humidity":  22,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "cholera",
+                                        "confidence":  "80%",
+                                        "riskScore":  33,
+                                        "level":  "LOW",
+                                        "color":  "#00C853",
+                                        "expectedOutbreak":  "Stable - Monitor only"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "cholera",
+                                             "probability":  "95%",
+                                             "caseCount":  15,
+                                             "level":  "LOW"
+                                         }
+                                     ],
+                     "summary":  "cholera indicates low risk level in ujalaiwadi. Monitor local trends.",
+                     "lat":  16.6646285,
+                     "lng":  74.2706915
+                 },
+                 {
+                     "area":  "kalamba",
+                     "city":  "kolhapur",
+                     "weather":  {
+                                     "city":  "kolhapur",
+                                     "temp":  37.09,
+                                     "humidity":  22,
+                                     "rainfall":  0,
+                                     "contaminatedWater":  false
+                                 },
+                     "prediction":  {
+                                        "disease":  "typhoid",
+                                        "confidence":  "80%",
+                                        "riskScore":  54,
+                                        "level":  "MEDIUM",
+                                        "color":  "#FFA500",
+                                        "expectedOutbreak":  "Possible in 1-2 weeks"
+                                    },
+                     "topDiseases":  [
+                                         {
+                                             "name":  "typhoid",
+                                             "probability":  "95%",
+                                             "caseCount":  24,
+                                             "level":  "MEDIUM"
+                                         }
+                                     ],
+                     "summary":  "typhoid indicates medium risk level in kalamba. Monitor local trends.",
+                     "lat":  16.6710781,
+                     "lng":  74.2246122
+                 }
+             ]
+}

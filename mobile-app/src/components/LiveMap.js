@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, getRiskColor } from '../constants/theme';
@@ -88,81 +88,50 @@ const darkMapStyle = [
   },
 ];
 
-const AnimatedRiskZone = ({ data, onPress }) => {
-  const isHigh = data.prediction.level === 'HIGH';
-  const color = getRiskColor(data.prediction.level);
-  
-  // Calculate size based on confidence (for variety)
-  const confidence = parseInt(data.prediction.confidence) || 50;
-  const baseSize = 40 + (confidence / 2); 
-  const size = isHigh ? baseSize * 1.5 : baseSize;
+// Slightly muted but clearly visible marker colors
+const MARKER_COLORS = {
+  HIGH: '#E04040',    // Muted red
+  MEDIUM: '#D98C00',  // Muted orange
+  LOW: '#1EAA50',     // Muted green
+};
 
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(0.4)).current;
+const getMarkerColor = (level) => MARKER_COLORS[level] || MARKER_COLORS.LOW;
 
-  useEffect(() => {
-    if (isHigh) {
-      Animated.loop(
-        Animated.parallel([
-          Animated.sequence([
-            Animated.timing(pulseAnim, {
-              toValue: 1.5,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-            Animated.timing(pulseAnim, {
-              toValue: 1,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.sequence([
-            Animated.timing(opacityAnim, {
-              toValue: 0.1,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-              toValue: 0.4,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-          ])
-        ])
-      ).start();
-    }
-  }, [isHigh]);
+// Static rounded marker — no blinking, no animation
+const StaticRiskMarker = ({ data, onPress }) => {
+  const level = data.prediction.level;
+  const color = getMarkerColor(level);
+
+  // Size based on risk level
+  const size = level === 'HIGH' ? 24 : level === 'MEDIUM' ? 18 : 14;
+  const totalSize = size + 8; // Including padding for outer glow
 
   return (
     <Marker coordinate={data.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
-      <View style={[styles.markerContainer, { width: size * 1.5, height: size * 1.5 }]}>
-         {/* Pulsing Glow (only for HIGH) */}
-        {isHigh && (
-          <Animated.View
-            style={[
-              styles.pulseRing,
-              {
-                width: size,
-                height: size,
-                backgroundColor: color,
-                transform: [{ scale: pulseAnim }],
-                opacity: opacityAnim,
-              },
-            ]}
-          />
-        )}
-        
-        {/* Core Zone Circle - Matching screenshot style */}
+      <View style={[styles.markerContainer, { width: totalSize, height: totalSize }]}>
+        {/* Outer glow ring */}
         <View
           style={[
-            styles.coreZone,
+            styles.outerRing,
             {
-              width: size * 0.8,
-              height: size * 0.8,
-              backgroundColor: `${color}30`, // Lightly transparent fill
-              borderColor: color,
-              borderWidth: 3, // Thick border
-              ...(isHigh ? SHADOWS.glow(color) : {})
+              width: totalSize,
+              height: totalSize,
+              borderRadius: totalSize / 2,
+              backgroundColor: `${color}35`,
+            },
+          ]}
+        />
+        {/* Core dot — solid, bright, fully opaque */}
+        <View
+          style={[
+            styles.coreDot,
+            {
+              width: size,
+              height: size,
+              borderRadius: size / 2,
+              backgroundColor: color,
+              borderWidth: 1.5,
+              borderColor: '#FFFFFF',
             },
           ]}
         />
@@ -172,6 +141,8 @@ const AnimatedRiskZone = ({ data, onPress }) => {
 };
 
 const LiveMap = ({ data, onMarkerPress }) => {
+  const mapRef = useRef(null);
+
   // Center roughly in India
   const initialRegion = {
     latitude: 20.5937,
@@ -179,6 +150,27 @@ const LiveMap = ({ data, onMarkerPress }) => {
     latitudeDelta: 15.0,
     longitudeDelta: 15.0,
   };
+
+  useEffect(() => {
+    // Zoom to fit filtered coordinates when data changes
+    if (mapRef.current && data && data.length > 0) {
+      const coords = data.filter(d => d.coordinates).map(d => d.coordinates);
+      if (coords.length > 0) {
+        if (coords.length === 1) {
+          mapRef.current.animateToRegion({
+            ...coords[0],
+            latitudeDelta: 0.5,
+            longitudeDelta: 0.5,
+          }, 1000);
+        } else {
+          mapRef.current.fitToCoordinates(coords, {
+            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+            animated: true,
+          });
+        }
+      }
+    }
+  }, [data]);
 
   // Check if we have coordinate data to avoid maps crashing
   const hasCoordinates = data.some(d => d.coordinates);
@@ -190,12 +182,16 @@ const LiveMap = ({ data, onMarkerPress }) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
         customMapStyle={darkMapStyle}
+        compassEnabled={false}
+        showsCompass={false}
+        toolbarEnabled={false}
       >
         {data.map((item) => (
-          <AnimatedRiskZone key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
+          <StaticRiskMarker key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
         ))}
       </MapView>
 
@@ -207,15 +203,15 @@ const LiveMap = ({ data, onMarkerPress }) => {
         >
           <Text style={styles.legendTitle}>Risk Zones</Text>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: COLORS.high, ...SHADOWS.glowSm(COLORS.high) }]} />
+            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.HIGH }]} />
             <Text style={styles.legendText}>High</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: COLORS.medium }]} />
+            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.MEDIUM }]} />
             <Text style={styles.legendText}>Medium</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: COLORS.low }]} />
+            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.LOW }]} />
             <Text style={styles.legendText}>Low</Text>
           </View>
         </LinearGradient>
@@ -226,7 +222,7 @@ const LiveMap = ({ data, onMarkerPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 350, // Making it a dominant element
+    height: 350,
     width: width,
     marginBottom: 20,
     overflow: 'hidden',
@@ -245,20 +241,13 @@ const styles = StyleSheet.create({
   markerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'visible',
   },
-  pulseRing: {
+  outerRing: {
     position: 'absolute',
-    borderRadius: 999,
   },
-  coreZone: {
-    borderRadius: 999,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  centerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  coreDot: {
+    position: 'absolute',
   },
   legendContainer: {
     position: 'absolute',

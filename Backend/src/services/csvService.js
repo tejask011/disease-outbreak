@@ -3,7 +3,7 @@ const readline = require("readline");
 
 const parseCSV = async (filePath) => {
   const results = [];
-
+  
   const fileStream = fs.createReadStream(filePath);
 
   const rl = readline.createInterface({
@@ -21,13 +21,20 @@ const parseCSV = async (filePath) => {
       const casesValue = parseInt(cases);
 
       if (!isNaN(casesValue)) {
-        results.push({
-          area: area.trim(),
-          city: city.trim(),
-          date: new Date(date.trim()),
-          disease: disease.trim().toLowerCase(),
-          cases: casesValue,
-        });
+        const normalize = (text) => {
+        return text
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, ""); // remove spaces
+      };
+
+      results.push({
+        area: normalize(area),
+        city: normalize(city),
+        date: new Date(date.trim()),
+        disease: disease.trim().toLowerCase(),
+        cases: casesValue,
+      });
       }
     }
   }

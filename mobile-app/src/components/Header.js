@@ -8,14 +8,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
 const Header = ({ title = "Outbreak Monitor", subtitle = "Global Surveillance" }) => {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-
-
   return (
     <View style={styles.container}>
       {/* Gradient accent line */}
@@ -40,14 +32,6 @@ const Header = ({ title = "Outbreak Monitor", subtitle = "Global Surveillance" }
             <Text style={styles.title}>Outbreak Monitor</Text>
             <Text style={styles.subtitle}>AI-Based Disease Surveillance</Text>
           </View>
-        </View>
-
-        <View style={styles.right}>
-          <View style={styles.liveIndicator}>
-            <View style={styles.liveDot} />
-            <Text style={styles.liveText}>LIVE</Text>
-          </View>
-          <Text style={styles.time}>{timeStr}</Text>
         </View>
       </View>
     </View>
@@ -103,36 +87,6 @@ const styles = StyleSheet.create({
     ...FONTS.medium,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-  },
-  right: {
-    alignItems: 'flex-end',
-    gap: 4,
-  },
-  liveIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 200, 83, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: SIZES.radiusFull,
-    gap: 5,
-  },
-  liveDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: COLORS.low,
-  },
-  liveText: {
-    color: COLORS.low,
-    fontSize: SIZES.xxs,
-    ...FONTS.bold,
-    letterSpacing: 1.2,
-  },
-  time: {
-    color: COLORS.textMuted,
-    fontSize: SIZES.xs,
-    ...FONTS.regular,
   },
 });
 
