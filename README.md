@@ -19,7 +19,7 @@ Unlike traditional systems, it focuses on detecting **early weak signals** — i
 ### 📈 Analytics & Trends
 | Analytics | Trends |
 |:----------:|:--------:|
-| <img src="screenshots/analytics.png" width="300" alt="Analytics"/> | <img src="screenshots/insights2.png" width="300" alt="Trends"/> |
+| <img src="screenshots/analytics.png" width="300" alt="Analytics"/> |
 
 ---
 
