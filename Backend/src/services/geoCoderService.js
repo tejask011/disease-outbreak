@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const axios = require("axios");
 
 /**
@@ -160,50 +159,10 @@ const geocode = async (area, city) => {
 
   } catch (err) {
     console.log("❌ Geocode failed:", err.message);
-=======
-// services/geoCoderService.js
-// Geocodes area + city to lat/lng coordinates using Nominatim (free, no API key needed)
-
-const axios = require("axios");
-
-// In-memory cache to avoid redundant API calls within the same server session
-const geoCache = {};
-
-const geocode = async (area, city) => {
-  // Build a unique cache key
-  const cacheKey = `${area.toLowerCase().trim()}_${city.toLowerCase().trim()}`;
-
-  if (geoCache[cacheKey]) {
-    console.log("📍 Cache hit:", cacheKey);
-    return geoCache[cacheKey];
-  }
-
-  try {
-    // Try specific area + city first
-    let coords = await tryGeocode(`${area}, ${city}, India`);
-
-    // Fallback: just city
-    if (!coords) {
-      console.log(`⚠️ Area-level geocode failed, falling back to city: ${city}`);
-      coords = await tryGeocode(`${city}, India`);
-    }
-
-    if (coords) {
-      geoCache[cacheKey] = coords;
-      console.log(`📍 Geocoded [${area}, ${city}] → [${coords.lat}, ${coords.lng}]`);
-    } else {
-      console.log(`❌ Geocode failed completely for: ${area}, ${city}`);
-    }
-
-    return coords;
-  } catch (err) {
-    console.error("❌ Geocode error:", err.message);
->>>>>>> 1a26d20 ( listen port added)
     return null;
   }
 };
 
-<<<<<<< HEAD
 /**
  * Batch geocode helper to stay compatible with riskController
  */
@@ -227,31 +186,3 @@ const batchGeocode = async (items) => {
 };
 
 module.exports = { geocode, batchGeocode };
-=======
-const tryGeocode = async (query) => {
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&countrycodes=in&format=json&limit=1`;
-
-    const res = await axios.get(url, {
-      headers: {
-        "User-Agent": "DiseaseOutbreakApp/1.0",
-      },
-      timeout: 5000,
-    });
-
-    if (res.data && res.data.length > 0) {
-      return {
-        lat: parseFloat(res.data[0].lat),
-        lng: parseFloat(res.data[0].lon),
-      };
-    }
-
-    return null;
-  } catch (err) {
-    console.error("❌ Nominatim request failed:", err.message);
-    return null;
-  }
-};
-
-module.exports = { geocode };
->>>>>>> 1a26d20 ( listen port added)
