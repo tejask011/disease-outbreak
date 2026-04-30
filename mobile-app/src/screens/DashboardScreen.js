@@ -34,32 +34,8 @@ const DashboardScreen = ({ navigation }) => {
   
   const { outbreakData, loading, error, getHighRiskAreas, getStats, refreshData } = useContext(OutbreakContext);
 
+  const highRiskAreas = outbreakData.length ? getHighRiskAreas() : [];
   const stats = outbreakData.length ? getStats() : { total: 0, high: 0, medium: 0, low: 0 };
-
-  // Filter data based on selected risk level and search query
-  const filteredData = useMemo(() => {
-    let data = outbreakData;
-    
-    // Apply risk level filter
-    if (riskFilter) {
-      data = data.filter(d => d.prediction.level === riskFilter);
-    }
-    
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      data = data.filter(d => 
-        (d.area || '').toLowerCase().includes(q) ||
-        (d.city || '').toLowerCase().includes(q) ||
-        (d.prediction?.disease || '').toLowerCase().includes(q)
-      );
-    }
-    
-    return data;
-  }, [outbreakData, riskFilter, searchQuery]);
-
-  // List items for the FlatList (filtered by risk + search)
-  const listData = filteredData;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {

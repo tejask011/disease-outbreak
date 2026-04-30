@@ -54,12 +54,12 @@ export default function Dashboard() {
   const [flyCoords, setFlyCoords] = useState(null);
   const [flyZoom, setFlyZoom] = useState(5);
 
+  const data = riskData
+    ? (Array.isArray(riskData) ? riskData : [riskData])
+    : [];
+
   useEffect(() => {
-    if (!currentCity) {
-      setFlyCoords(null);
-      setFlyZoom(5);
-      return;
-    }
+    if (!currentCity) return;
 
     const geocode = async () => {
       try {
@@ -68,24 +68,30 @@ export default function Dashboard() {
         );
         const results = await res.json();
 
-        if (results.length > 0) {
-          setFlyCoords([
-            parseFloat(results[0].lat),
-            parseFloat(results[0].lon)
-          ]);
-          setFlyZoom(12);
+          if (results.length > 0) {
+            setFlyCoords([
+              parseFloat(results[0].lat),
+              parseFloat(results[0].lon)
+            ]);
+            setFlyZoom(12);
+          }
+        } catch (err) {
+          console.error("Geocode error:", err);
         }
-      } catch (err) {
-        console.error("Geocode error:", err);
+      };
+      geocodeCity();
+    } else if (data.length > 0) {
+      // No city search: auto-fly to first HIGH risk area, or first geocoded area
+      const highRisk = data.find(d => d.prediction?.level === "HIGH" && d.lat && d.lng);
+      const firstGeo = data.find(d => d.lat && d.lng);
+      const target = highRisk || firstGeo;
+
+      if (target) {
+        setFlyCoords([target.lat, target.lng]);
+        setFlyZoom(data.length > 5 ? 7 : 10);
       }
-    };
-
-    geocode();
-  }, [currentCity]);
-
-  const data = riskData
-    ? (Array.isArray(riskData) ? riskData : [riskData])
-    : [];
+    }
+  }, [currentCity, data.length]);
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -127,10 +133,16 @@ export default function Dashboard() {
               )}
 
               {data.map((item, i) => {
-                if (!item.lat || !item.lng) return null;
+                const spread = 0.04; // tighter cluster
 
-                const lat = item.lat;
-                const lng = item.lng;
+                // ✅ FIXED COORDINATES (random cluster instead of line)
+                const lat = flyCoords
+                  ? flyCoords[0] + (Math.random() - 0.5) * spread
+                  : 20.5937 + (Math.random() - 0.5) * 5;
+
+                const lng = flyCoords
+                  ? flyCoords[1] + (Math.random() - 0.5) * spread
+                  : 78.9629 + (Math.random() - 0.5) * 5;
 
                 const color = riskColor(item.prediction?.level);
                 const isHigh = item.prediction?.level === "HIGH";
@@ -139,10 +151,7 @@ export default function Dashboard() {
                   <CircleMarker
                     key={i}
                     center={[lat, lng]}
-                    radius={
-                      isHigh ? 16 :
-                      item.prediction?.level === "MEDIUM" ? 12 : 9
-                    }
+                    radius={isHigh ? 14 : item.prediction?.level === "MEDIUM" ? 10 : 8}
                     pathOptions={{
                       color,
                       fillColor: color,

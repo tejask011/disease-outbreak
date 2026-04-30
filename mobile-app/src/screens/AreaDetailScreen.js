@@ -24,11 +24,11 @@ import {
 } from '../constants/theme';
 
 const AreaDetailScreen = ({ route, navigation }) => {
-  const { area } = route.params;
+  const area = route.params?.area || { area: 'Unknown', city: 'Unknown', prediction: { level: 'LOW', riskScore: 0 } };
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
-  const riskColor = getRiskColor(area.prediction.level);
-  const isHigh = area.prediction.level === 'HIGH';
+  const riskColor = getRiskColor(area.prediction?.level);
+  const isHigh = area.prediction?.level === 'HIGH';
 
   useEffect(() => {
     Animated.parallel([

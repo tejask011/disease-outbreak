@@ -45,32 +45,21 @@ export const OutbreakProvider = ({ children }) => {
           return;
         }
 
-        // We need to inject random coordinates around the area/city, and generate an ID
+        // Use real coordinates from backend if available, otherwise fallback to city-based random
         const processedData = json.data.map((item, index) => {
-          // Use backend provided coordinates if available, otherwise fallback to city-based random scatter
-          let latitude, longitude;
+
+          const baseLocation = CITY_COORDS[item.city] || CITY_COORDS['Default'];
           
-          if (item.lat && item.lng) {
-            latitude = item.lat;
-            longitude = item.lng;
-          } else {
-            const baseLocation = CITY_COORDS[item.city] || CITY_COORDS['Default'];
-            
-            // Random offset between -0.05 and +0.05 degrees (~5km radius) to avoid exact overlap
-            // significantly reduced from 0.8 for much better accuracy if falling back
-            const latOffset = (Math.random() - 0.5) * 0.1;
-            const lngOffset = (Math.random() - 0.5) * 0.1;
-            
-            latitude = baseLocation.latitude + latOffset;
-            longitude = baseLocation.longitude + lngOffset;
-          }
+          // Random offset between -0.4 and +0.4 degrees (~40km radius)
+          const latOffset = (Math.random() - 0.5) * 0.8;
+          const lngOffset = (Math.random() - 0.5) * 0.8;
 
           return {
             ...item,
             id: `server-${index}-${Date.now()}`,
             coordinates: {
-              latitude,
-              longitude,
+              latitude: baseLocation.latitude + latOffset,
+              longitude: baseLocation.longitude + lngOffset,
             }
           };
         });

@@ -17,16 +17,18 @@ const seedDB = async () => {
     const finalData = [];
     const today = new Date();
 
+    const normalize = (text) => text.toLowerCase().trim().replace(/\s+/g, "");
+
     for (let i = 0; i < 60; i++) {
         // generate random cases from the last 30 days
-        const area = areas[Math.floor(Math.random() * areas.length)];
+        const rawArea = areas[Math.floor(Math.random() * areas.length)];
         const disease = diseases[Math.floor(Math.random() * diseases.length)];
         const cases = Math.floor(Math.random() * 25) + 1;
         const d = new Date(today.getTime() - Math.floor(Math.random() * 28) * 24 * 60 * 60 * 1000);
         
         finalData.push({
-            area: area,
-            city: 'Pune',
+            area: normalize(rawArea),
+            city: normalize('Pune'),
             date: d,
             disease: disease,
             cases: cases,

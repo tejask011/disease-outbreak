@@ -23,8 +23,8 @@ import {
 
 const RiskCard = ({ item, onPress }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const riskColor = getRiskColor(item.prediction.level);
-  const isHigh = item.prediction.level === 'HIGH';
+  const riskColor = getRiskColor(item.prediction?.level);
+  const isHigh = item.prediction?.level === 'HIGH';
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
@@ -58,7 +58,7 @@ const RiskCard = ({ item, onPress }) => {
         ]}
       >
         <LinearGradient
-          colors={getRiskGradient(item.prediction.level)}
+          colors={getRiskGradient(item.prediction?.level)}
           style={styles.card}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -94,7 +94,7 @@ const RiskCard = ({ item, onPress }) => {
                   <Ionicons name="warning" size={10} color={riskColor} />
                 )}
                 <Text style={[styles.riskText, { color: riskColor }]}>
-                  {item.prediction.level}
+                  {item.prediction?.level || 'N/A'}
                 </Text>
               </View>
             </View>
@@ -108,7 +108,7 @@ const RiskCard = ({ item, onPress }) => {
                   color="rgba(255,255,255,0.5)"
                 />
                 <Text style={styles.diseaseText}>
-                  {item.prediction.disease}
+                  {item.prediction?.disease || 'Unknown'}
                 </Text>
               </View>
 
@@ -116,14 +116,14 @@ const RiskCard = ({ item, onPress }) => {
                 <View style={styles.metricItem}>
                   <Text style={styles.metricLabel}>RISK</Text>
                   <Text style={[styles.riskValue, { color: riskColor }]}>
-                    {item.prediction.riskScore}
+                    {item.prediction?.riskScore || 0}
                   </Text>
                 </View>
 
                 <View style={[styles.metricItem, { marginLeft: 12 }]}>
                   <Text style={styles.metricLabel}>CERT.</Text>
                   <Text style={styles.confValue}>
-                    {item.prediction.confidence}
+                    {item.prediction?.confidence || '0%'}
                   </Text>
                 </View>
               </View>
@@ -139,7 +139,7 @@ const RiskCard = ({ item, onPress }) => {
                   color={COLORS.textMuted}
                 />
                 <Text style={styles.expectedText}>
-                  Expected: {item.prediction.expectedOutbreak}
+                  Expected: {item.prediction?.expectedOutbreak || 'N/A'}
                 </Text>
               </View>
 

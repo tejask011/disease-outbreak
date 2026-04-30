@@ -11,6 +11,13 @@ const parseCSV = async (filePath) => {
     crlfDelay: Infinity,
   });
 
+  const normalize = (text) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, ""); // remove spaces
+  };
+
   for await (const line of rl) {
     const values = line.split(",");
 
@@ -21,20 +28,13 @@ const parseCSV = async (filePath) => {
       const casesValue = parseInt(cases);
 
       if (!isNaN(casesValue)) {
-        const normalize = (text) => {
-        return text
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, ""); // remove spaces
-      };
-
-      results.push({
-        area: normalize(area),
-        city: normalize(city),
-        date: new Date(date.trim()),
-        disease: disease.trim().toLowerCase(),
-        cases: casesValue,
-      });
+        results.push({
+          area: area.trim(),
+          city: city.trim(),
+          date: new Date(date.trim()),
+          disease: disease.trim().toLowerCase(),
+          cases: casesValue,
+        });
       }
     }
   }

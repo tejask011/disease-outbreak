@@ -2,7 +2,6 @@
 
 const { predictOutbreak } = require("../services/outbreakService");
 const { getWeather } = require("../services/weatherService");
-const { batchGeocode } = require("../services/geoCoderService");
 const Case = require("../models/Case");
 
 // Group records by area AND city to prevent data merging across cities (e.g., CIDCO in Nashik vs Aurangabad)
@@ -20,6 +19,9 @@ const groupByArea = (records) => {
 
   return grouped;
 };
+
+// Small delay helper to respect Nominatim rate limits (1 req/sec)
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
 // ✅ MAIN API
@@ -103,35 +105,32 @@ const calculateRiskHandler = async (req, res) => {
     const grouped = groupByArea(records);
     const results = [];
 
-    for (let area in grouped) {
-      const areaCity = grouped[area][0]?.city || "Unknown";
+    for (let areaKey in grouped) {
+      const areaName = grouped[areaKey][0]?.area || "Unknown";
+      const areaCity = grouped[areaKey][0]?.city || "Unknown";
       const actualWeather = weatherCache[areaCity] || null;
 
       const result = await predictOutbreak({
-        data: grouped[area],
+        data: grouped[areaKey],
         weather: actualWeather,
       });
+
+      // 📍 Geocode each area to get real lat/lng
+      try {
+        const coords = await geocode(areaName, areaCity);
+        if (coords) {
+          result.lat = coords.lat;
+          result.lng = coords.lng;
+        }
+        // Respect Nominatim rate limit (1 request per second)
+        await delay(1000); 
+      } catch (geoErr) {
+        console.error(`❌ Geocode failed for ${areaName}, ${areaCity}:`, geoErr.message);
+      }
 
       results.push(result);
     }
 
-    // 🗺️ Batch geocode all area-city pairs for map markers
-    console.log("🗺️ Starting geocoding for map markers...");
-    const geocodeMap = await batchGeocode(
-      results.map((r) => ({ area: r.area, city: r.city }))
-    );
-
-    // Attach lat/lng to each result
-    for (const result of results) {
-      const key = `${(result.area || "").toLowerCase().trim()}_${(result.city || "").toLowerCase().trim()}`;
-      const coords = geocodeMap.get(key);
-      if (coords) {
-        result.lat = coords.lat;
-        result.lng = coords.lng;
-      }
-    }
-
-    console.log(`✅ Final results: ${results.length} areas, ${results.filter(r => r.lat).length} geocoded`);
 
     res.json({
       success: true,

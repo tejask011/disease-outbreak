@@ -35,7 +35,7 @@ const AnalyticsScreen = () => {
   };
 
   // Dynamically extract top diseases from data to show them in line trends
-  const uniqueDiseases = outbreakData.length > 0 ? [...new Set(outbreakData.flatMap(d => d.topDiseases.map(t => t.name)))].slice(0, 4) : [];
+  const uniqueDiseases = outbreakData.length > 0 ? [...new Set(outbreakData.flatMap(d => (d.topDiseases || []).map(t => t.name)))].slice(0, 4) : [];
   const colorPalette = [
     'rgba(255, 77, 77, OPACITY)',  // Red
     'rgba(255, 165, 0, OPACITY)',  // Orange
@@ -71,7 +71,9 @@ const AnalyticsScreen = () => {
   // Dynamic Bar Data by City
   const cityRiskMap = {};
   outbreakData.forEach(d => {
-    cityRiskMap[d.city] = (cityRiskMap[d.city] || 0) + (d.prediction.level === 'HIGH' ? 30 : d.prediction.level === 'MEDIUM' ? 15 : 5);
+    if (d.city && d.prediction) {
+      cityRiskMap[d.city] = (cityRiskMap[d.city] || 0) + (d.prediction.level === 'HIGH' ? 30 : d.prediction.level === 'MEDIUM' ? 15 : 5);
+    }
   });
   const barCities = Object.keys(cityRiskMap).slice(0, 5);
   const barData = {

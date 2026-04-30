@@ -1,4 +1,6 @@
+import 'react-native-gesture-handler';
 import React from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { OutbreakProvider } from './src/context/OutbreakContext';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -76,30 +78,32 @@ const TabNavigator = () => {
 
 export default function App() {
   return (
-    <OutbreakProvider>
-      <NavigationContainer theme={navTheme}>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            cardStyle: { backgroundColor: COLORS.bgDark },
-            cardStyleInterpolator: ({ current }) => ({
-              cardStyle: {
-                opacity: current.progress,
-              },
-            }),
-          }}
-        >
-          <Stack.Screen name="MainTabs" component={TabNavigator} />
-          <Stack.Screen 
-            name="AreaDetail" 
-            component={AreaDetailScreen} 
-            options={{
-              presentation: 'transparentModal',
-              cardStyle: { backgroundColor: 'transparent' },
+    <SafeAreaProvider>
+      <OutbreakProvider>
+        <NavigationContainer theme={navTheme}>
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              cardStyle: { backgroundColor: COLORS.bgDark },
+              cardStyleInterpolator: ({ current }) => ({
+                cardStyle: {
+                  opacity: current.progress,
+                },
+              }),
             }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </OutbreakProvider>
+          >
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
+            <Stack.Screen 
+              name="AreaDetail" 
+              component={AreaDetailScreen} 
+              options={{
+                presentation: 'transparentModal',
+                cardStyle: { backgroundColor: 'transparent' },
+              }}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </OutbreakProvider>
+    </SafeAreaProvider>
   );
 }

@@ -1,10 +1,86 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, getRiskColor } from '../constants/theme';
 
 const { width } = Dimensions.get('window');
+
+// Error Boundary to catch react-native-maps crashes in Expo Go
+class MapErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.warn('MapView crashed:', error.message);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={fallbackStyles.container}>
+          <LinearGradient
+            colors={['rgba(18, 26, 47, 0.95)', 'rgba(11, 17, 32, 0.95)']}
+            style={fallbackStyles.gradient}
+          >
+            <Text style={fallbackStyles.icon}>🗺️</Text>
+            <Text style={fallbackStyles.title}>Map Unavailable</Text>
+            <Text style={fallbackStyles.subtitle}>
+              Maps require a development build.{'\n'}Use the web dashboard for map view.
+            </Text>
+          </LinearGradient>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const fallbackStyles = StyleSheet.create({
+  container: {
+    height: 350,
+    width: width,
+    borderRadius: SIZES.radius,
+    overflow: 'hidden',
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  icon: { fontSize: 48 },
+  title: {
+    color: COLORS.textPrimary,
+    fontSize: SIZES.lg,
+    ...FONTS.bold,
+  },
+  subtitle: {
+    color: COLORS.textMuted,
+    fontSize: SIZES.sm,
+    ...FONTS.regular,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+});
+
+// Lazy load MapView to prevent crash on import
+let MapView = null;
+let Marker = null;
+
+try {
+  const maps = require('react-native-maps');
+  MapView = maps.default;
+  Marker = maps.Marker;
+} catch (e) {
+  console.warn('react-native-maps not available:', e.message);
+}
 
 // Custom Map Style for Dark Theme
 const darkMapStyle = [
@@ -88,23 +164,50 @@ const darkMapStyle = [
   },
 ];
 
-// Slightly muted but clearly visible marker colors
-const MARKER_COLORS = {
-  HIGH: '#E04040',    // Muted red
-  MEDIUM: '#D98C00',  // Muted orange
-  LOW: '#1EAA50',     // Muted green
-};
+const AnimatedRiskZone = ({ data, onPress }) => {
+  const isHigh = data.prediction.level === 'HIGH';
+  const color = getRiskColor(data.prediction.level);
+  
+  // Calculate size based on confidence (for variety)
+  const confidence = parseInt(data.prediction.confidence) || 50;
+  const baseSize = 40 + (confidence / 2); 
+  const size = isHigh ? baseSize * 1.5 : baseSize;
 
-const getMarkerColor = (level) => MARKER_COLORS[level] || MARKER_COLORS.LOW;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(0.4)).current;
 
-// Static rounded marker — no blinking, no animation
-const StaticRiskMarker = ({ data, onPress }) => {
-  const level = data.prediction.level;
-  const color = getMarkerColor(level);
-
-  // Size based on risk level
-  const size = level === 'HIGH' ? 24 : level === 'MEDIUM' ? 18 : 14;
-  const totalSize = size + 8; // Including padding for outer glow
+  useEffect(() => {
+    if (isHigh) {
+      Animated.loop(
+        Animated.parallel([
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.5,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+          ]),
+          Animated.sequence([
+            Animated.timing(opacityAnim, {
+              toValue: 0.1,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+            Animated.timing(opacityAnim, {
+              toValue: 0.4,
+              duration: 1500,
+              useNativeDriver: true,
+            }),
+          ])
+        ])
+      ).start();
+    }
+  }, [isHigh]);
 
   return (
     <Marker coordinate={data.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
@@ -179,19 +282,27 @@ const LiveMap = ({ data, onMarkerPress }) => {
      return <View style={styles.fallback}><Text style={{color: '#fff'}}>No coordinate data available</Text></View>
   }
 
+  // If MapView is not available (import failed), show fallback
+  if (!MapView) {
+    return (
+      <View style={styles.fallback}>
+        <Text style={{color: COLORS.textPrimary, fontSize: SIZES.md, ...FONTS.bold}}>🗺️ Map Unavailable</Text>
+        <Text style={{color: COLORS.textMuted, fontSize: SIZES.sm, textAlign: 'center', marginTop: 8}}>
+          Maps require a development build
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
-        ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
         customMapStyle={darkMapStyle}
-        compassEnabled={false}
-        showsCompass={false}
-        toolbarEnabled={false}
       >
         {data.map((item) => (
-          <StaticRiskMarker key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
+          <AnimatedRiskZone key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
         ))}
       </MapView>
 
@@ -203,15 +314,15 @@ const LiveMap = ({ data, onMarkerPress }) => {
         >
           <Text style={styles.legendTitle}>Risk Zones</Text>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.HIGH }]} />
+            <View style={[styles.legendDot, { backgroundColor: COLORS.high, ...SHADOWS.glowSm(COLORS.high) }]} />
             <Text style={styles.legendText}>High</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.MEDIUM }]} />
+            <View style={[styles.legendDot, { backgroundColor: COLORS.medium }]} />
             <Text style={styles.legendText}>Medium</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: MARKER_COLORS.LOW }]} />
+            <View style={[styles.legendDot, { backgroundColor: COLORS.low }]} />
             <Text style={styles.legendText}>Low</Text>
           </View>
         </LinearGradient>
@@ -287,3 +398,4 @@ const styles = StyleSheet.create({
 });
 
 export default LiveMap;
+
