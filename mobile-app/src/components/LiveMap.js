@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, getRiskColor } from '../constants/theme';
 
 const { width } = Dimensions.get('window');
 
 // Error Boundary to catch react-native-maps crashes in Expo Go
-class MapErrorBoundary extends Component {
+class MapErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { hasError: false };
@@ -164,74 +163,35 @@ const darkMapStyle = [
   },
 ];
 
-const AnimatedRiskZone = ({ data, onPress }) => {
-  const isHigh = data.prediction.level === 'HIGH';
+// Simple static round colored dot marker
+const RiskDot = ({ data, onPress }) => {
   const color = getRiskColor(data.prediction.level);
-  
-  // Calculate size based on confidence (for variety)
-  const confidence = parseInt(data.prediction.confidence) || 50;
-  const baseSize = 40 + (confidence / 2); 
-  const size = isHigh ? baseSize * 1.5 : baseSize;
-
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const opacityAnim = useRef(new Animated.Value(0.4)).current;
-
-  useEffect(() => {
-    if (isHigh) {
-      Animated.loop(
-        Animated.parallel([
-          Animated.sequence([
-            Animated.timing(pulseAnim, {
-              toValue: 1.5,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-            Animated.timing(pulseAnim, {
-              toValue: 1,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.sequence([
-            Animated.timing(opacityAnim, {
-              toValue: 0.1,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-            Animated.timing(opacityAnim, {
-              toValue: 0.4,
-              duration: 1500,
-              useNativeDriver: true,
-            }),
-          ])
-        ])
-      ).start();
-    }
-  }, [isHigh]);
+  const dotSize = 14;
+  const outerSize = 24;
 
   return (
     <Marker coordinate={data.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
-      <View style={[styles.markerContainer, { width: totalSize, height: totalSize }]}>
+      <View style={[styles.markerContainer, { width: outerSize, height: outerSize }]}>
         {/* Outer glow ring */}
         <View
           style={[
             styles.outerRing,
             {
-              width: totalSize,
-              height: totalSize,
-              borderRadius: totalSize / 2,
+              width: outerSize,
+              height: outerSize,
+              borderRadius: outerSize / 2,
               backgroundColor: `${color}35`,
             },
           ]}
         />
-        {/* Core dot — solid, bright, fully opaque */}
+        {/* Core dot — solid, static, fully opaque */}
         <View
           style={[
             styles.coreDot,
             {
-              width: size,
-              height: size,
-              borderRadius: size / 2,
+              width: dotSize,
+              height: dotSize,
+              borderRadius: dotSize / 2,
               backgroundColor: color,
               borderWidth: 1.5,
               borderColor: '#FFFFFF',
@@ -297,12 +257,13 @@ const LiveMap = ({ data, onMarkerPress }) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
         customMapStyle={darkMapStyle}
       >
         {data.map((item) => (
-          <AnimatedRiskZone key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
+          <RiskDot key={item.id} data={item} onPress={() => onMarkerPress && onMarkerPress(item)} />
         ))}
       </MapView>
 

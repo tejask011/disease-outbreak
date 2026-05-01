@@ -1,6 +1,6 @@
 // src/config/config.js
-// IP: 10.90.0.73 (Found via ipconfig)
-export const IP = '10.45.10.73'; // Auto-detected IP
+// IP: 10.90.0.107 (From Expo server output)
+export const IP = '10.90.0.107'; // Updated to current network IP
 // Using a physical device requires the actual IP address, not localhost
 export const CONFIG = {
   API_BASE_URL: `http://${IP}:3000`,

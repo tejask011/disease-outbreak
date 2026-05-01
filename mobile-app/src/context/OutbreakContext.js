@@ -18,11 +18,15 @@ export const OutbreakProvider = ({ children }) => {
   const [outbreakData, setOutbreakData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [emptyReason, setEmptyReason] = useState(null); // 'empty_database' | 'no_recent_data' | null
+  const [serverMessage, setServerMessage] = useState('');
 
   const fetchRiskData = async (city = '') => {
     try {
       setLoading(true);
       setError(null);
+      setEmptyReason(null);
+      setServerMessage('');
       
       const url = city 
         ? `${CONFIG.API_BASE_URL}/api/risk/calculate?city=${city}`
@@ -30,8 +34,6 @@ export const OutbreakProvider = ({ children }) => {
 
       const response = await fetch(url);
 
-
-      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -40,27 +42,38 @@ export const OutbreakProvider = ({ children }) => {
       
       if (json.success && Array.isArray(json.data)) {
         if (json.data.length === 0) {
-          console.log("ℹ️ No outbreak data found - system in healthy monitoring state.");
+          console.log("ℹ️ No outbreak data found -", json.reason || 'unknown reason');
           setOutbreakData([]);
+          setEmptyReason(json.reason || null);
+          setServerMessage(json.message || '');
           return;
         }
 
         // Use real coordinates from backend if available, otherwise fallback to city-based random
         const processedData = json.data.map((item, index) => {
+          let coordinates;
 
-          const baseLocation = CITY_COORDS[item.city] || CITY_COORDS['Default'];
-          
-          // Random offset between -0.4 and +0.4 degrees (~40km radius)
-          const latOffset = (Math.random() - 0.5) * 0.8;
-          const lngOffset = (Math.random() - 0.5) * 0.8;
+          // Prefer real geocoded coordinates from backend
+          if (item.lat && item.lng) {
+            coordinates = {
+              latitude: parseFloat(item.lat),
+              longitude: parseFloat(item.lng),
+            };
+          } else {
+            // Fallback: random offset around city center (only when geocoding failed)
+            const baseLocation = CITY_COORDS[item.city] || CITY_COORDS['Default'];
+            const latOffset = (Math.random() - 0.5) * 0.8;
+            const lngOffset = (Math.random() - 0.5) * 0.8;
+            coordinates = {
+              latitude: baseLocation.latitude + latOffset,
+              longitude: baseLocation.longitude + lngOffset,
+            };
+          }
 
           return {
             ...item,
             id: `server-${index}-${Date.now()}`,
-            coordinates: {
-              latitude: baseLocation.latitude + latOffset,
-              longitude: baseLocation.longitude + lngOffset,
-            }
+            coordinates,
           };
         });
         
@@ -101,6 +114,8 @@ export const OutbreakProvider = ({ children }) => {
       outbreakData,
       loading,
       error,
+      emptyReason,
+      serverMessage,
       refreshData,
       getHighRiskAreas,
       getMediumRiskAreas,

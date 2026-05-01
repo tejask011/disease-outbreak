@@ -32,10 +32,35 @@ const DashboardScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
   
-  const { outbreakData, loading, error, getHighRiskAreas, getStats, refreshData } = useContext(OutbreakContext);
+  const { outbreakData, loading, error, emptyReason, serverMessage, getHighRiskAreas, getStats, refreshData } = useContext(OutbreakContext);
 
   const highRiskAreas = outbreakData.length ? getHighRiskAreas() : [];
   const stats = outbreakData.length ? getStats() : { total: 0, high: 0, medium: 0, low: 0 };
+
+  // Filter data by risk level and search query
+  const filteredData = useMemo(() => {
+    let result = outbreakData;
+
+    // Apply risk level filter
+    if (riskFilter) {
+      result = result.filter(d => d.prediction && d.prediction.level === riskFilter);
+    }
+
+    // Apply search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(d =>
+        (d.area && d.area.toLowerCase().includes(q)) ||
+        (d.city && d.city.toLowerCase().includes(q)) ||
+        (d.disease && d.disease.toLowerCase().includes(q))
+      );
+    }
+
+    return result;
+  }, [outbreakData, riskFilter, searchQuery]);
+
+  // listData is the same as filteredData (used by FlatList)
+  const listData = filteredData;
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -160,8 +185,46 @@ const DashboardScreen = ({ navigation }) => {
             <SectionTitle title="Loading Risk Data..." color={COLORS.primary} />
           </View>
         ) : error ? (
-          <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
-            <SectionTitle title="Error Loading Data" color={COLORS.high} />
+          <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center', padding: 40 }]}>
+            <View style={styles.emptyStateIcon}>
+              <Ionicons name="cloud-offline-outline" size={80} color={COLORS.medium} />
+            </View>
+            <SectionTitle title="Unable to Connect" color={COLORS.medium} />
+            <Text style={styles.emptyText}>
+              Could not reach the server. Please check that the backend is running and your device is on the same network.
+            </Text>
+            <TouchableOpacity style={[styles.refreshBtn, { borderColor: 'rgba(255,170,0,0.3)', backgroundColor: 'rgba(255,170,0,0.1)' }]} onPress={onRefresh}>
+              <Ionicons name="refresh" size={20} color={COLORS.textPrimary} />
+              <Text style={styles.refreshBtnText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : outbreakData.length === 0 && emptyReason === 'empty_database' ? (
+          <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center', padding: 40 }]}>
+            <View style={styles.emptyStateIcon}>
+              <Ionicons name="document-text-outline" size={80} color={COLORS.primarySoft} />
+            </View>
+            <SectionTitle title="No Data Yet" color={COLORS.primary} />
+            <Text style={styles.emptyText}>
+              The database is empty. Upload a CSV dataset from the Upload tab to start monitoring disease outbreaks in your region.
+            </Text>
+            <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
+              <Ionicons name="refresh" size={20} color={COLORS.textPrimary} />
+              <Text style={styles.refreshBtnText}>Check Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : outbreakData.length === 0 && emptyReason === 'no_recent_data' ? (
+          <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center', padding: 40 }]}>
+            <View style={styles.emptyStateIcon}>
+              <Ionicons name="time-outline" size={80} color={COLORS.medium} />
+            </View>
+            <SectionTitle title="No Recent Outbreaks" color={COLORS.medium} />
+            <Text style={styles.emptyText}>
+              Your database has records, but none fall within the last 30-day monitoring window. Upload a fresh dataset with recent dates to see updated predictions.
+            </Text>
+            <TouchableOpacity style={[styles.refreshBtn, { borderColor: 'rgba(255,170,0,0.3)', backgroundColor: 'rgba(255,170,0,0.1)' }]} onPress={onRefresh}>
+              <Ionicons name="refresh" size={20} color={COLORS.textPrimary} />
+              <Text style={styles.refreshBtnText}>Refresh</Text>
+            </TouchableOpacity>
           </View>
         ) : outbreakData.length === 0 ? (
           <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center', padding: 40 }]}>

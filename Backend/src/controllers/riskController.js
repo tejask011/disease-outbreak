@@ -2,6 +2,7 @@
 
 const { predictOutbreak } = require("../services/outbreakService");
 const { getWeather } = require("../services/weatherService");
+const { geocode } = require("../services/geoCoderService");
 const Case = require("../models/Case");
 
 // Group records by area AND city to prevent data merging across cities (e.g., CIDCO in Nashik vs Aurangabad)
@@ -78,13 +79,27 @@ const calculateRiskHandler = async (req, res) => {
       records = await Case.find(fallbackQuery).sort({ date: 1 });
     }
 
-    // GRACEFUL EMPTY STATE
+    // GRACEFUL EMPTY STATE — distinguish between truly empty DB vs. no recent data
     if (!records.length) {
-      return res.json({
-        success: true,
-        data: [],
-        message: "Monitoring active: No cases found in the last 30 days."
-      });
+      // Check if the database has ANY records at all (regardless of date/city filters)
+      const totalCount = await Case.countDocuments();
+
+      if (totalCount === 0) {
+        return res.json({
+          success: true,
+          data: [],
+          reason: "empty_database",
+          message: "No outbreak data found. Please upload a CSV dataset to begin monitoring."
+        });
+      } else {
+        return res.json({
+          success: true,
+          data: [],
+          reason: "no_recent_data",
+          totalRecords: totalCount,
+          message: "Database has records, but no cases match the last 30-day window. Historical data may be outdated."
+        });
+      }
     }
 
     // 🔍 Localized Weather Engine
