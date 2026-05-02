@@ -120,30 +120,43 @@ const calculateRiskHandler = async (req, res) => {
     const grouped = groupByArea(records);
     const results = [];
 
-    for (let areaKey in grouped) {
-      const areaName = grouped[areaKey][0]?.area || "Unknown";
-      const areaCity = grouped[areaKey][0]?.city || "Unknown";
-      const actualWeather = weatherCache[areaCity] || null;
+    const groupedKeys = Object.keys(grouped);
 
-      const result = await predictOutbreak({
-        data: grouped[areaKey],
-        weather: actualWeather,
+    // Process in chunks of 5 to avoid AI rate limits but prevent timeouts
+    for (let i = 0; i < groupedKeys.length; i += 5) {
+      const chunkKeys = groupedKeys.slice(i, i + 5);
+      
+      const chunkPromises = chunkKeys.map(async (areaKey) => {
+        const areaName = grouped[areaKey][0]?.area || "Unknown";
+        const areaCity = grouped[areaKey][0]?.city || "Unknown";
+        const actualWeather = weatherCache[areaCity] || null;
+
+        const result = await predictOutbreak({
+          data: grouped[areaKey],
+          weather: actualWeather,
+        });
+
+        // 📍 Geocode each area to get real lat/lng
+        try {
+          const coords = await geocode(areaName, areaCity);
+          if (coords) {
+            result.lat = coords.lat;
+            result.lng = coords.lng;
+          }
+        } catch (geoErr) {
+          console.error(`❌ Geocode failed for ${areaName}, ${areaCity}:`, geoErr.message);
+        }
+        
+        return result;
       });
 
-      // 📍 Geocode each area to get real lat/lng
-      try {
-        const coords = await geocode(areaName, areaCity);
-        if (coords) {
-          result.lat = coords.lat;
-          result.lng = coords.lng;
-        }
-        // Respect Nominatim rate limit (1 request per second)
-        await delay(1000); 
-      } catch (geoErr) {
-        console.error(`❌ Geocode failed for ${areaName}, ${areaCity}:`, geoErr.message);
-      }
+      const chunkResults = await Promise.all(chunkPromises);
+      results.push(...chunkResults);
 
-      results.push(result);
+      // Delay between chunks to respect Nominatim and Groq AI rate limits
+      if (i + 5 < groupedKeys.length) {
+        await delay(1000); 
+      }
     }
 
 

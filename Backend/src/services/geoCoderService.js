@@ -108,6 +108,9 @@ const geocode = async (area, city) => {
       };
     }
 
+    // Add delay to respect Nominatim rate limit (1 req/sec)
+    await new Promise(r => setTimeout(r, 1500));
+
     // 🚀 FALLBACK 1.5: Try area + state (ignoring the city if it's different)
     // Actually, let's just try "city, India" if area fails, because city might be "kolhapur"
     console.log(`⚠️ Full query failed. Trying city-only: "${city}, India"`);
@@ -124,6 +127,9 @@ const geocode = async (area, city) => {
       };
     }
 
+    // Add delay to respect Nominatim rate limit
+    await new Promise(r => setTimeout(r, 1500));
+
     // 🚀 FALLBACK 2: Try just "area, India" (since area is often the actual city name like "gwalior")
     console.log(`⚠️ Full query failed. Trying area-only: "${area}, India"`);
     const areaOnlyUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(area + ", India")}&countrycodes=in&format=json&limit=1`;
@@ -138,6 +144,9 @@ const geocode = async (area, city) => {
         lng: parseFloat(areaRes.data[0].lon),
       };
     }
+
+    // Add delay to respect Nominatim rate limit
+    await new Promise(r => setTimeout(r, 1500));
 
     // 🚀 FALLBACK 3: Try just the normalized state name
     console.log(`⚠️ Area-only also failed. Trying state-only: "${normalizedState}, India"`);

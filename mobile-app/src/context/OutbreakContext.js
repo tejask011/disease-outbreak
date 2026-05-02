@@ -21,6 +21,21 @@ export const OutbreakProvider = ({ children }) => {
   const [emptyReason, setEmptyReason] = useState(null); // 'empty_database' | 'no_recent_data' | null
   const [serverMessage, setServerMessage] = useState('');
 
+  // Single fetch attempt with given timeout
+  const attemptFetch = async (url, timeoutMs) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  };
+
   const fetchRiskData = async (city = '') => {
     try {
       setLoading(true);
@@ -32,13 +47,18 @@ export const OutbreakProvider = ({ children }) => {
         ? `${CONFIG.API_BASE_URL}/api/risk/calculate?city=${city}`
         : `${CONFIG.API_BASE_URL}/api/risk/calculate`;
 
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Auto-retry logic for Render free-tier cold starts
+      // First attempt: 120s timeout (enough for both servers to wake up)
+      // If it fails, retry once (servers should be awake by now)
+      let json;
+      try {
+        json = await attemptFetch(url, 120000);
+      } catch (firstErr) {
+        console.log('⏳ First attempt failed, retrying (servers may be waking up)...', firstErr.message);
+        // Wait 3 seconds then retry — servers should be awake now
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        json = await attemptFetch(url, 120000);
       }
-      
-      const json = await response.json();
       
       if (json.success && Array.isArray(json.data)) {
         if (json.data.length === 0) {
@@ -83,7 +103,13 @@ export const OutbreakProvider = ({ children }) => {
       }
     } catch (err) {
       console.warn('API Error:', err);
-      setError(err.message);
+      if (err.name === 'AbortError') {
+        setError('Server is starting up. Please wait a moment and tap Retry.');
+      } else if (err.message?.includes('Network request failed')) {
+        setError('Could not reach the server. Please check your internet connection.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }

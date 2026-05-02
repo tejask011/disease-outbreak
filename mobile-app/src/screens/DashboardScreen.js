@@ -191,7 +191,7 @@ const DashboardScreen = ({ navigation }) => {
             </View>
             <SectionTitle title="Unable to Connect" color={COLORS.medium} />
             <Text style={styles.emptyText}>
-              Could not reach the server. Please check that the backend is running and your device is on the same network.
+              {error || 'Could not reach the server. Please check your internet connection and try again.'}
             </Text>
             <TouchableOpacity style={[styles.refreshBtn, { borderColor: 'rgba(255,170,0,0.3)', backgroundColor: 'rgba(255,170,0,0.1)' }]} onPress={onRefresh}>
               <Ionicons name="refresh" size={20} color={COLORS.textPrimary} />
